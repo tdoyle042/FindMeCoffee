@@ -8,7 +8,6 @@ var routes = require('./routes');
 var user = require('./routes/user');
 var http = require('http');
 var path = require('path');
-var sass = require('node-sass');
 var secrets = require('./secrets')
 
 var foursquare = (require('foursquarevenues'))(secrets.clientid,secrets.clientkey);
