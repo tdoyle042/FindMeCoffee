@@ -1,35 +1,38 @@
 $(document).ready(function(){
 	var mapModel = Backbone.Model.extend({
 		map : null,
-		initialize : function(map) {
-			this.map = map;
+		coordinates: null,
+		initialize : function() {
 		}
 	});
 
 	var mapView = Backbone.View.extend({
 		el : $(".map"),
-		model : null,
 		initialize : function() {
-			this.model = new mapModel(L.mapbox.map('map','examples.map-9ijuk24y'));
-			console.log(this.model);
-			// this.myMap.setView([40, -74.50], 9);
-		},
-		refocusMap : function(coordinates) {
-			console.log("Got: ", coordinates);
-			console.log(this.model);
-			// this.myMap.setView([coordinates.coords.latitude,coordinates.coords.longitude],9);
+			this.listenTo(this.model,"change",this.render);
 		},
 		render : function() {
+			console.log("Render!");
+			if (this.model.get("coordinates")) {
+				var latitude = this.model.get("coordinates").latitude;
+				var longitude = this.model.get("coordinates").longitude;
+				this.model.get("map").setView([latitude,longitude],16);
+			}
 		}
 	});
 
-	var centralMap = new mapView();
-	getLocation(centralMap)
+	var map = L.mapbox.map('map','examples.map-9ijuk24y')
+	var centralMapModel = new mapModel({"map" : map});
+	var centralMapView = new mapView({model : centralMapModel});
+	centralMapView.render();
+	getLocation(centralMapModel)
 });
 
 function getLocation (map) {
 	if (navigator.geolocation) {
-    	navigator.geolocation.getCurrentPosition(map.refocusMap);
+    	navigator.geolocation.getCurrentPosition(function (coordinates){
+    		map.set({"coordinates" : coordinates.coords});
+    	});
     }
 }
 
